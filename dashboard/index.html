@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Radar — pre-token protocols ranked by implied value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<a class="skip" href="#board">Skip to the board</a>
+<header class="top">
+  <div class="wrap">
+    <p class="kicker">TOKEN RADAR · MODEL RADAR-2</p>
+    <h1>Which pre-token protocol is worth farming next?</h1>
+    <p class="lede">Every protocol below records no token, ranked by an implied value computed from its own figures — TVL, seven-day growth, how long it has run, and how many chains it runs on. Click any row for its farm plan.</p>
+    <dl class="stats" id="stats"></dl>
+    <p class="meta" id="meta"></p>
+  </div>
+</header>
+<main class="wrap" id="board" tabindex="-1">
+  <section class="panel" aria-label="Board controls">
+    <div class="tabs" role="tablist" aria-label="Views">
+      <button type="button" id="tab-board" role="tab" aria-selected="true">Pre-token board</button>
+      <button type="button" id="tab-live" role="tab" aria-selected="false">Live tokens · already trading</button>
+    </div>
+    <div class="toolbar">
+      <label>Search <input id="q" type="search" placeholder="Name, slug or category" autocomplete="off"></label>
+      <label>Category <select id="cat"><option value="all">All categories</option></select></label>
+      <label>Chain <select id="chain"><option value="all">All chains</option></select></label>
+      <label class="check"><input id="watch" type="checkbox"> Watchlist only</label>
+      <label>Sort <select id="sort">
+        <option value="implied">Implied value</option>
+        <option value="tvl">TVL</option>
+        <option value="change">7-day change</option>
+        <option value="age">Age</option>
+        <option value="name">Name</option>
+      </select></label>
+      <button type="button" id="dir" aria-label="Reverse sort order">↓</button>
+    </div>
+    <p class="count" id="count"></p>
+    <div class="tablewrap"><table id="table">
+      <thead><tr>
+        <th>#</th><th>Protocol</th><th>Category</th><th>Chains</th>
+        <th class="num">TVL</th><th class="num">7d</th><th class="num">Age</th>
+        <th class="num">Implied value</th><th></th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <p class="hint">Rows are ranked by implied value. “Records no token” is what the snapshot says — it is not proof a protocol has none, and it is not a promise one will launch.</p>
+  </section>
+
+  <section class="panel" id="method" aria-label="How the radar works">
+    <h2>How the radar works</h2>
+    <h3>The board</h3>
+    <p>The board ranks protocols that record no token: no market cap, no CoinGecko id, no symbol in the snapshot. It also leaves out wrapped, staked and bridged products of a token that already trades — the watchlist’s own rule, applied to the whole universe instead of only above the floor. A category of Bridge, Canonical Bridge, Liquid Staking, Liquid Restaking, Restaked BTC or CEX is out; a name carrying a whole word <i>wrapped</i>, <i>staked</i> or <i>staking</i> is out; a name beginning with an exchange’s name is out; a name ending in a version marker is out. That rule removes 144 of the snapshot’s 342 pre-token protocols, including 39 of the 160 early rows a looser rule would have kept. The snapshot carries no parent-protocol field, so the house’s parent rule cannot be applied from these bytes: 20 rows sit above the floor but outside the watchlist for that reason, and the detail view flags them.</p>
+    <h3>The value model (radar-2)</h3>
+    <p>Implied value = TVL × 0.25 × growth × maturity × breadth. Growth is the seven-day TVL change clamped to −60…+120%, weighted 0.5: growth = 1 + (change ÷ 100) × 0.5. Maturity is 0.6 + min(age in days, 1095) ÷ 1095 × 0.4; a protocol with no listing date is scored at 365 days. Breadth is 1 + 0.05 × min(chains − 1, 4): a protocol on more chains has more surfaces to farm. The same function scores every row — no protocol name is special-cased — and the detail view recomputes each row live from the same constants, so the page and board.json always agree. The model sandbox below lets you change the constants and watch the board re-rank; it changes only this page, never board.json.</p>
+    <h3>The farm plan</h3>
+    <p>Every row carries seven steps derived from its own record: its category sets the action, its TVL sets the capital, its age sets the hold, its chains set the spread. Each step states what it costs and how long it takes. Step three tells you to check the protocol’s own site for a points program — the radar does not know whether one exists. Nothing here is a promise: a pre-token protocol may never issue a token, and farming costs gas whether or not an airdrop comes.</p>
+    <h3>Live tokens, kept apart</h3>
+    <p>The “Live tokens” tab lists protocols whose token already trades, by market cap — the market’s own values, never mixed into the ranked board.</p>
+    <div class="sandbox" id="sandbox">
+      <h3>Model sandbox</h3>
+      <p>Change a constant and the board re-ranks live. This changes only this page.</p>
+      <label>Base multiple <input id="sb-base" type="number" step="0.05" min="0.05" max="1" value="0.25"></label>
+      <label>Growth weight <input id="sb-growth" type="number" step="0.1" min="0" max="1" value="0.5"></label>
+      <label>Breadth per chain <input id="sb-breadth" type="number" step="0.01" min="0" max="0.2" value="0.05"></label>
+      <button type="button" id="sb-reset">Reset to radar-2</button>
+      <p class="sb-note" id="sb-note">Showing model radar-2.</p>
+    </div>
+  </section>
+</main>
+<aside id="drawer" aria-label="Protocol detail" hidden>
+  <button type="button" id="drawer-close" aria-label="Close detail">×</button>
+  <div id="detail"></div>
+</aside>
+<footer class="wrap">
+  <p>Data: DefiLlama protocols endpoint, frozen snapshot — see the board header for the fetch date. Implied value is this radar’s own estimate, not a price and not investment advice. No network: every byte this page shows ships with it.</p>
+</footer>
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
